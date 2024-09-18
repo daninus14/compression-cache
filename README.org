@@ -26,7 +26,7 @@ To use, the server/web app/clack would then call in the render function the =(en
 
 Note that there is a gzip-stream library, but I think a previously compressed file will be best, and the servers already are responsible for how they want to deliver files with chunking etc.
 
-** TODO / Future Features
+** Future Features
 
 - Add support for different types of encodings
 - Consider doing Content Negotiation. However note that it may be best not to do this at all and just respond based on the client provided `Accept-Encoding` headers, and if not available, avoid encoding.
@@ -35,7 +35,7 @@ Note that there is a gzip-stream library, but I think a previously compressed fi
 
 ** References
 
-- [Content-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding)
-- [Accept-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding)
-- [Content Negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation)
-- [IANA registry list of official content encodings](https://www.iana.org/assignments/http-parameters/http-parameters.xhtml#content-coding)
+- [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding][Content-Encoding]]
+- [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding][Accept-Encoding]]
+- [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation][Content Negotiation]]
+- [[https://www.iana.org/assignments/http-parameters/http-parameters.xhtml#content-coding][IANA registry list of official content encodings]]
