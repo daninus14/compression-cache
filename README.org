@@ -1,0 +1,41 @@
+COMPRESSION-CACHE -*- mode: org -*-
+* compression-cache
+
+** Motivation
+
+To provide a simple protocol for caching compressed files.
+
+Goal: Make a Compression of Static Files for Web Servers
+
+** Description
+There are already libraries to do gzip. However Hunchentoot and Clack do not seem to support encoding. We need to add a header of encoding and a compression of the files.
+
+There protocol can be as follows:
+- =*cache-directory*=
+- =*check-if-modified*= to have a lookup for the original file if the modified date is newer than whatever is saved in the Hash table of that filepath. Defaults to =T= but can be set to =NIL= to avoid the check for performance reasons.
+- =*compress-on-load*= defaults to =NIL= which means that only when a file is requested, does it check if it has been compressed. If it has, just return the path to the cached compressed version; if it hasn't, then compress it, save it to the cache (with the added relative path =cache_dir/filepath=), and then return the cached compressed filepath. If the value is =T=, then on loading the library, it will compress all the files provided in =*static-files-directory*= and save them to the cache directory.
+- =*static-files-directory*= useful only if the =*compress-on-load*= variable is set to =T=, in which case it will compress and add to the cache directory all the files in the provided path.
+- The function =(get-path-to-compressed-file filepath)= should return NIL if there is no path. See =*check-if-modified*= above.
+- =(defun ensure-path-to-compressed-file (filepath &optional &key check-if-modified algorithm))= Will check if there is a path for a compressed version of the original pathname and return it, if there is none, it will then compress a file and save it and return the compressed file's path. See =*check-if-modified*= above. The optional parameter =check-if-modified= overrides the behavior set in the =*check-if-modified*=. The optional parameter =algorithm= overrides the behavior set in =*compression-algorithm*=
+- =*compression-algorithm*= is a setting for which compression algorithm to use.
+- =*compressed-files-ht*= this will keep a record of the files that have been compressed. It is of the form =filepath -> (compressed-filepath algorithm)=
+- =(get-algorithm-for-compressed-file filepath)= if =filepath= is in =*compressed-files-ht*= then it returns the algortihm used to compress the file, otherwise returns =NIL=
+- =(get-http-header-for-compressed-file filepath)= if =filepath= is in =*compressed-files-ht*= then it returns the appripriate http header to use for the file, otherwise returns =NIL=
+
+To use, the server/web app/clack would then call in the render function the =(ensure-path-to-compressed-file filepath)= whenever a =filepath= is provided, which would make the server render the cached compressed version instead of the non compressed version.
+
+Note that there is a gzip-stream library, but I think a previously compressed file will be best, and the servers already are responsible for how they want to deliver files with chunking etc.
+
+** TODO / Future Features
+
+- Add support for different types of encodings
+- Consider doing Content Negotiation. However note that it may be best not to do this at all and just respond based on the client provided `Accept-Encoding` headers, and if not available, avoid encoding.
+- For cases when files are temporarily generated and long term caching may not be so beneficial, consider making a compressed file expiration (which means that after some time of having compressed a file or since the last request for that file, the file will be deleted) to reduce disk consumption.
+- Should look up how other systems implement this functionality for reference and improvements.
+
+** References
+
+- [Content-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding)
+- [Accept-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Encoding)
+- [Content Negotiation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation)
+- [IANA registry list of official content encodings](https://www.iana.org/assignments/http-parameters/http-parameters.xhtml#content-coding)
