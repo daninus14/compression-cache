@@ -25,7 +25,11 @@ There protocol can be as follows:
 To use, the server/web app/clack would then call in the render function the =(ensure-path-to-compressed-file filepath)= whenever a =filepath= is provided, which would make the server render the cached compressed version instead of the non compressed version.
 
 Note that there is a gzip-stream library, but I think a previously compressed file will be best, and the servers already are responsible for how they want to deliver files with chunking etc.
-
+*** Potential Dependencies
+**** https://github.com/html/clache
+This deals with making a cache and can probably make everything pretty straightforward.
+**** https://www.xach.com/lisp/salza2/
+This is the standard CL compression library.
 ** Future Features
 
 - Add support for different types of encodings
