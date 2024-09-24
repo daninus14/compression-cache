@@ -29,7 +29,7 @@
                                                     :ensure-directories-exist T)))
     (setf *store-path* valid-cache-pathname)
     (setf *store*
-          (make-instance 'file-store :directory valid-cache-pathname))))
+          (make-instance 'clache:file-store :directory valid-cache-pathname))))
 
 (defun ensure-path-to-compressed-file (filepath &optional &key (algorithm :gzip))
   ;; TODO add check-if-modified check. Need to add the date to the value of the cache (not the key)
@@ -57,7 +57,18 @@
           (algorithm)
           "Compression Algorithm ~A is not available. Currently only `:gzip` is supported"
           algorithm)
-  (let ((compressed-filepath (uiop:merge-pathnames* filepath *store-path*)))
+  (let* ((merged-pathname (uiop:merge-pathnames* filepath *store-path*))
+         (compressed-filepath (uiop:ensure-pathname merged-pathname
+                                                    :want-pathname T
+                                                    :ensure-directories-exist T)))
+    ;; (with-open-file (istream filepath :element-type '(unsigned-byte 8))
+    ;;   (with-open-file (ostream compressed-filepath
+    ;;                            :element-type '(unsigned-byte 8)
+    ;;                            :direction :output
+    ;;                            :if-exists :supersede
+    ;;                            :if-does-not-exist :create)
+    ;;     (salza2:gzip-stream istream ostream)))
+    ;; (probe-file compressed-filepath)
     (salza2:gzip-file filepath compressed-filepath)
     compressed-filepath))
 
