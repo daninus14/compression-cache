@@ -12,9 +12,10 @@
 (in-package :compression-cache)
 
 (defvar *store-path* NIL)
+(defvar *root* (uiop:getcwd))
 (defvar *store* NIL)
 
-(defun initialize-cache (cache-path)
+(defun initialize-cache (cache-path &optional root)
   "cache-path can be either a pathname or a string of a path to a directory. If the directory doesn't exist it will be created. If a relative directory is provided AKA one not starting with a forward slash '/', the pathname will be derived from the current working directory `(uiop:getcwd)`"
   ;; check that cache-path is either a string or a pathname
   ;; if it is a string, turn it into a pathname
@@ -28,6 +29,7 @@
                                                     :ensure-directory T
                                                     :ensure-directories-exist T)))
     (setf *store-path* valid-cache-pathname)
+    (setf *root* root)
     (setf *store*
           (make-instance 'clache:file-store :directory valid-cache-pathname))))
 
@@ -40,7 +42,8 @@
   ;; https://shinmera.github.io/file-attributes/
   ;; (check-if-modified NIL)
   "Will check if there is a path for a compressed version of the original pathname and return it, if there is none, it will then compress a file and save it and return the compressed file's path."
-  (assert (uiop:file-exists-p filepath) (filepath) "File ~A not found" filepath)
+  (assert (uiop:file-exists-p (uiop:merge-pathnames* filepath *root*))
+          (filepath) "File ~A not found" filepath)
   (let* ((valid-pathname (uiop:ensure-pathname filepath
                                                :want-pathname T))
          (key (get-cache-key valid-pathname :algorithm algorithm))
@@ -60,7 +63,8 @@
   (let* ((merged-pathname (uiop:merge-pathnames* filepath *store-path*))
          (compressed-filepath (uiop:ensure-pathname merged-pathname
                                                     :want-pathname T
-                                                    :ensure-directories-exist T)))
+                                                    :ensure-directories-exist T))
+         (static-filepath (uiop:merge-pathnames* filepath *root*)))
     ;; (with-open-file (istream filepath :element-type '(unsigned-byte 8))
     ;;   (with-open-file (ostream compressed-filepath
     ;;                            :element-type '(unsigned-byte 8)
@@ -69,7 +73,7 @@
     ;;                            :if-does-not-exist :create)
     ;;     (salza2:gzip-stream istream ostream)))
     ;; (probe-file compressed-filepath)
-    (salza2:gzip-file filepath compressed-filepath)
+    (salza2:gzip-file static-filepath compressed-filepath)
     compressed-filepath))
 
 (defun save-to-cache (original-filepath compressed-filepath &optional &key (algorithm :gzip))
