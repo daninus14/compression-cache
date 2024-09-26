@@ -11,7 +11,7 @@ Goal: Make a Compression of Static Files for Web Servers
 
 There are two functions as of version =0.1.0=.
 
-#+BEGIN_SRC
+#+BEGIN_SRC common-lisp
 (defun initialize-cache (cache-path))
 (defun ensure-path-to-compressed-file (filepath &optional &key (algorithm :gzip)))
 #+END_SRC
