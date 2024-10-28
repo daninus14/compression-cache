@@ -16,3 +16,5 @@ jobs:
         with:
           gh-pages: true
           dist: http://dist.shirakumo.org/shirakumo.txt
+    environment:
+      name: github-pages
