@@ -19,4 +19,3 @@ There are two functions as of version =0.1.0=.
 The function =initialize-cache= must be called with a path to store the files to be cached.
 
 The function =ensure-path-to-compressed-file= will return a path to the compressed version of the file which was passed as input.
-
